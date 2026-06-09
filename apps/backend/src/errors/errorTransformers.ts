@@ -1,6 +1,5 @@
 import { ZodError } from 'zod';
 import { AppError } from './AppError';
-import { Prisma } from '@prisma/client';
 import createHttpError from 'http-errors';
 
 /**
@@ -19,55 +18,6 @@ export function transformZodError(error: ZodError): AppError {
   return new AppError(`Validation failed: ${fields}`, 422, 'VALIDATION_ERROR', {
     errors: details,
   });
-}
-
-/**
- * Transform Prisma database errors into an AppError
- * @param error - Prisma client error
- * @returns AppError with appropriate status and message
- */
-export function transformPrismaError(
-  error: Prisma.PrismaClientKnownRequestError
-): AppError {
-  switch (error.code) {
-    case 'P2002': {
-      const field = (error.meta?.target as string[])?.join(', ') || 'field';
-      return new AppError(
-        `Duplicate entry for: ${field}`,
-        409,
-        'DUPLICATE_ERROR',
-        { field }
-      );
-    }
-
-    case 'P2025': {
-      return new AppError('Record not found', 404, 'NOT_FOUND');
-    }
-
-    case 'P2003': {
-      const field = error.meta?.field_name || 'field';
-      return new AppError(
-        `Related record not found for: ${field}`,
-        400,
-        'FOREIGN_KEY_ERROR',
-        { field }
-      );
-    }
-
-    case 'P2014': {
-      return new AppError(
-        'Cannot delete record due to existing relations',
-        400,
-        'RELATION_VIOLATION'
-      );
-    }
-
-    default: {
-      return new AppError('Database operation failed', 500, 'DATABASE_ERROR', {
-        code: error.code,
-      });
-    }
-  }
 }
 
 /**
@@ -101,10 +51,6 @@ export function toAppError(error: unknown): AppError {
 
   if (error instanceof ZodError) {
     return transformZodError(error);
-  }
-
-  if (error instanceof Prisma.PrismaClientKnownRequestError) {
-    return transformPrismaError(error);
   }
 
   if (createHttpError.isHttpError(error)) {

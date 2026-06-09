@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
-import { prisma } from '../../database/prisma/client';
 import { logger } from '../../apps/backend/src/utils/logger';
+import { rtdb } from '../../apps/backend/src/config/firebase';
+
+const toArray = (obj: any) => obj ? Object.keys(obj).map(key => ({ id: key, ...obj[key] })) : [];
 
 // Define progression tier type
 interface ProgressionTier {
@@ -35,39 +37,33 @@ function getTier(xp: number): ProgressionTier['key'] {
 
 // GET user gamification summary
 export const getGamificationSummary = async (
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> => {
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        educationProgress: true,
-        achievements: true,
-        skillTrees: true,
-      },
-    });
-
-    if (!user) {
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    if (!snapshot.exists()) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
 
-    const xp = user.educationProgress.reduce(
-      (sum, p) => sum + (p.xpEarned || 0),
-      0
-    );
+    const user = snapshot.val();
+    const progressArray = toArray(user.educationProgress);
+    const achievementsArray = toArray(user.achievements);
+    const skillTreesArray = toArray(user.skillTrees);
+
+    const xp = progressArray.reduce((sum, p) => sum + (p.xpEarned || 0), 0);
     const tier = getTier(xp);
 
     res.status(200).json({
       xp,
       tier,
       streak: user.dailyStreak || 0,
-      achievements: user.achievements,
-      skillTrees: user.skillTrees,
-      progress: user.educationProgress,
+      achievements: achievementsArray,
+      skillTrees: skillTreesArray,
+      progress: progressArray,
     });
   } catch (error) {
     logger.error('Error getting gamification summary:', error);
@@ -77,66 +73,41 @@ export const getGamificationSummary = async (
 
 // POST: Add XP for a completed lesson/quiz
 export async function completeModule(
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> {
   try {
     const userId = req.user.id;
     const { lessonId, xpEarned } = req.body;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true },
-    });
-
-    if (!user) {
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    if (!snapshot.exists()) {
       res.status(404).json({ error: 'User not found' });
       return;
     }
+    const user = snapshot.val();
 
-    // Use a transaction to ensure data consistency
-    const result = await prisma.$transaction(async tx => {
-      const progress = await tx.educationProgress.upsert({
-        where: {
-          userId_lessonId: {
-            userId,
-            lessonId,
-          },
-        },
-        update: {
-          completed: true,
-          xpEarned,
-          completedAt: new Date(),
-        },
-        create: {
-          userId,
-          lessonId,
-          completed: true,
-          xpEarned,
-          completedAt: new Date(),
-        },
-      });
+    // Upsert progress
+    const progressRef = rtdb.ref(`users/${userId}/educationProgress/${lessonId}`);
+    const progressData = {
+      userId,
+      lessonId,
+      completed: true,
+      xpEarned,
+      completedAt: new Date().toISOString(),
+    };
+    await progressRef.set(progressData);
 
-      const updatedUser = await tx.user.update({
-        where: { id: userId },
-        data: {
-          lastActiveDate: new Date(),
-          dailyStreak: {
-            increment: 1,
-          },
-        },
-      });
-
-      return {
-        progress,
-        streak: updatedUser.dailyStreak,
-      };
+    const newStreak = (user.dailyStreak || 0) + 1;
+    await rtdb.ref(`users/${userId}`).update({
+      lastActiveDate: new Date().toISOString(),
+      dailyStreak: newStreak,
     });
 
     res.status(200).json({
       success: true,
-      progress: result.progress,
-      streak: result.streak,
+      progress: progressData,
+      streak: newStreak,
       message: 'Module completed successfully',
     });
   } catch (error) {
@@ -147,41 +118,30 @@ export async function completeModule(
 
 // POST: Add an achievement
 export const addAchievement = async (
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> => {
   try {
     const userId = req.user.id;
     const { type, title, description, color, requirement } = req.body;
 
-    const existingAchievement = await prisma.achievement.findFirst({
-      where: {
-        userId,
-        type,
-      },
-    });
+    const achievementsRef = rtdb.ref(`users/${userId}/achievements`);
+    const snapshot = await achievementsRef.orderByChild('type').equalTo(type).once('value');
 
-    if (existingAchievement) {
+    if (snapshot.exists()) {
       res.status(200).json({
         success: true,
-        achievement: existingAchievement,
+        achievement: Object.values(snapshot.val())[0],
         message: 'Achievement already earned',
       });
       return;
     }
 
-    const achievement = await prisma.achievement.create({
-      data: {
-        userId,
-        type,
-        title,
-        description,
-        color,
-        requirement,
-      },
-    });
+    const newAchievementRef = achievementsRef.push();
+    const achievementData = { userId, type, title, description, color, requirement };
+    await newAchievementRef.set(achievementData);
 
-    res.status(201).json({ success: true, achievement });
+    res.status(201).json({ success: true, achievement: { id: newAchievementRef.key, ...achievementData } });
   } catch (error) {
     logger.error('Error adding achievement:', error);
     res.status(500).json({ error: 'Failed to add achievement' });
@@ -190,17 +150,13 @@ export const addAchievement = async (
 
 // GET: All achievements for user
 export const getAchievements = async (
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> => {
   try {
     const userId = req.user.id;
-
-    const achievements = await prisma.achievement.findMany({
-      where: { userId },
-    });
-
-    res.status(200).json({ achievements });
+    const snapshot = await rtdb.ref(`users/${userId}/achievements`).once('value');
+    res.status(200).json({ achievements: toArray(snapshot.val()) });
   } catch (error) {
     logger.error('Error fetching achievements:', error);
     res.status(500).json({ error: 'Failed to fetch achievements' });
@@ -209,17 +165,13 @@ export const getAchievements = async (
 
 // GET: User skill tree progress
 export const getSkillTrees = async (
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> => {
   try {
     const userId = req.user.id;
-
-    const skillTrees = await prisma.userSkillTree.findMany({
-      where: { userId },
-    });
-
-    res.status(200).json({ skillTrees });
+    const snapshot = await rtdb.ref(`users/${userId}/skillTrees`).once('value');
+    res.status(200).json({ skillTrees: toArray(snapshot.val()) });
   } catch (error) {
     logger.error('Error fetching skill trees:', error);
     res.status(500).json({ error: 'Failed to fetch skill trees' });
@@ -228,29 +180,18 @@ export const getSkillTrees = async (
 
 // POST: Update skill tree progress
 export const updateSkillTree = async (
-  req: Request & { user: { id: string } }, // Inline type definition
+  req: Request & { user: { id: string } },
   res: Response
 ): Promise<void> => {
   try {
     const userId = req.user.id;
     const { skillTreeId, progress } = req.body;
 
-    const updated = await prisma.userSkillTree.upsert({
-      where: {
-        userId_skillTreeId: {
-          userId,
-          skillTreeId,
-        },
-      },
-      update: { progress },
-      create: {
-        userId,
-        skillTreeId,
-        progress,
-      },
-    });
+    const skillTreeRef = rtdb.ref(`users/${userId}/skillTrees/${skillTreeId}`);
+    const data = { userId, skillTreeId, progress };
+    await skillTreeRef.set(data);
 
-    res.status(200).json({ success: true, updated });
+    res.status(200).json({ success: true, updated: data });
   } catch (error) {
     logger.error('Error updating skill tree:', error);
     res.status(500).json({ error: 'Failed to update skill tree' });

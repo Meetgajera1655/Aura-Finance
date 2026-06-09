@@ -2,12 +2,9 @@ import {
   Profile as GoogleProfile,
   VerifyCallback,
 } from 'passport-google-oauth20';
-import { PrismaClient } from '@prisma/client';
-import { getUserByEmail } from './data';
+import { getUserByEmail, createUser, getAccountByProviderId, createAccount } from './data';
 import { Profile as GithubProfile } from 'passport-github2';
 import { logger } from '../utils/logger';
-
-const prisma = new PrismaClient();
 
 export const LoginWithGoogle = async (
   profile: GoogleProfile,
@@ -27,28 +24,20 @@ export const LoginWithGoogle = async (
     if (existingUser) {
       user = existingUser;
     } else {
-      user = await prisma.user.create({
-        data: {
-          username: profile.displayName,
-          email,
-          emailVerified: new Date(),
-        },
+      user = await createUser({
+        username: profile.displayName,
+        email,
+        emailVerified: new Date().toISOString(),
       });
     }
 
-    const existingAccount = await prisma.account.findUnique({
-      where: {
-        providerAccountId: sub,
-      },
-    });
+    const existingAccount = await getAccountByProviderId(sub);
 
     if (!existingAccount) {
-      await prisma.account.create({
-        data: {
-          userId: user.id,
-          provider: profile.provider,
-          providerAccountId: sub,
-        },
+      await createAccount({
+        userId: user.id,
+        provider: profile.provider,
+        providerAccountId: sub,
       });
     }
 
@@ -76,28 +65,20 @@ export const LoginWithGithub = async (
     if (existingUser) {
       user = existingUser;
     } else {
-      user = await prisma.user.create({
-        data: {
-          username: profile.displayName,
-          email,
-          emailVerified: new Date(),
-        },
+      user = await createUser({
+        username: profile.displayName,
+        email,
+        emailVerified: new Date().toISOString(),
       });
     }
 
-    const existingAccount = await prisma.account.findUnique({
-      where: {
-        providerAccountId: profile.id,
-      },
-    });
+    const existingAccount = await getAccountByProviderId(profile.id);
 
     if (!existingAccount) {
-      await prisma.account.create({
-        data: {
-          userId: user.id,
-          provider: profile.provider,
-          providerAccountId: profile.id,
-        },
+      await createAccount({
+        userId: user.id,
+        provider: profile.provider,
+        providerAccountId: profile.id,
       });
     }
     done(null, user);

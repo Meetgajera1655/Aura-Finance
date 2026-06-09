@@ -1,15 +1,13 @@
-import { PrismaClient } from '@prisma/client';
 import { logger } from './utils/logger';
-
-const prisma = new PrismaClient();
+import { rtdb } from './config/firebase';
 
 export const setupDb = async () => {
   try {
-    // Verify database connection on startup
-    await prisma.$connect();
-    logger.info('Database connection established: Using PostgreSQL defined in DATABASE_URL');
+    // Simple check to ensure RTDB is initialized
+    await rtdb.ref('.info/connected').once('value');
+    logger.info('Database connection established: Using Firebase Realtime Database');
   } catch (error) {
-    logger.error('Failed to connect to the database. Please ensure PostgreSQL is running.', error);
-    process.exit(1); // Exit if DB is not reachable to avoid cryptic errors later
+    logger.error('Failed to connect to Firebase Realtime Database.', error);
+    process.exit(1);
   }
 };

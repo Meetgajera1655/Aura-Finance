@@ -109,7 +109,7 @@ const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
   const { token } = req.params;
 
   try {
-    const user = await verifyEmailToken(token);
+    const user = await verifyEmailToken(token as string);
 
     if (user) {
       res.status(200).json({
@@ -164,7 +164,7 @@ const resetPassword = async (req: Request, res: Response, next: NextFunction) =>
 
   try {
     const tokensRef = rtdb.ref('passwordResetTokens');
-    const snapshot = await tokensRef.orderByChild('token').equalTo(token).once('value');
+    const snapshot = await tokensRef.orderByChild('token').equalTo(token as string).once('value');
     if (!snapshot.exists()) {
       return next(new BadRequestError('Invalid reset token'));
     }
@@ -199,7 +199,7 @@ const verifyResetToken = async (req: Request, res: Response, next: NextFunction)
 
   try {
     const tokensRef = rtdb.ref('passwordResetTokens');
-    const snapshot = await tokensRef.orderByChild('token').equalTo(token).once('value');
+    const snapshot = await tokensRef.orderByChild('token').equalTo(token as string).once('value');
     if (!snapshot.exists()) {
       res.status(200).json({ Code: 'INVALID_TOKEN', success: true });
       return;

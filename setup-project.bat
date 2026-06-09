@@ -8,7 +8,6 @@ echo.
 echo [1/4] Installing Node Backend dependencies...
 cd backend-node
 call npm install
-call npx prisma generate
 cd ..
 
 echo.

@@ -1,6 +1,17 @@
 import { Request, Response } from 'express';
-import { prisma } from '../../database/prisma/client';
 import { logger } from '../../apps/backend/src/utils/logger';
+import { rtdb } from '../../apps/backend/src/config/firebase';
+
+const toArray = (obj: any) => obj ? Object.keys(obj).map(key => ({ id: key, ...obj[key] })) : [];
+
+// Helper function to determine rank based on level
+function determineRank(level: number): string {
+  if (level >= 10) return 'Finance Guru';
+  if (level >= 7) return 'Budget Master';
+  if (level >= 5) return 'Money Manager';
+  if (level >= 3) return 'Financial Student';
+  return 'Finance Novice';
+}
 
 // GET: Retrieve user stats
 export async function getUserStats(
@@ -10,23 +21,17 @@ export async function getUserStats(
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      include: {
-        educationProgress: true,
-        achievements: true,
-        skillTrees: true,
-      },
-    });
-
-    if (!user) {
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    if (!snapshot.exists()) {
       return res.status(404).json({ error: 'User not found' });
     }
 
+    const user = snapshot.val();
+    const progressArray = toArray(user.educationProgress);
+    const achievementsArray = toArray(user.achievements);
+
     // Calculate derived stats
-    const completedLessons = user.educationProgress.filter(
-      p => p.completed
-    ).length;
+    const completedLessons = progressArray.filter((p: any) => p.completed).length;
     const totalXp = user.xp || 0;
 
     // Calculate XP required for next level (simple formula - can be adjusted)
@@ -41,7 +46,7 @@ export async function getUserStats(
       xpRequired: xpRequired,
       streak: user.dailyStreak || 0,
       lessons: completedLessons,
-      achievements: user.achievements.length,
+      achievements: achievementsArray.length,
       currentRank: user.currentRank || currentRank,
       lastActiveDate: user.lastActiveDate,
     };
@@ -62,21 +67,20 @@ export async function updateUserStats(
     const userId = req.user.id;
     const { xp, level, dailyStreak, currentRank } = req.body;
 
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        xp: xp !== undefined ? xp : undefined,
-        level: level !== undefined ? level : undefined,
-        dailyStreak: dailyStreak !== undefined ? dailyStreak : undefined,
-        currentRank: currentRank !== undefined ? currentRank : undefined,
-        lastActiveDate: new Date(),
-      },
-    });
+    const updates: any = { lastActiveDate: new Date().toISOString() };
+    if (xp !== undefined) updates.xp = xp;
+    if (level !== undefined) updates.level = level;
+    if (dailyStreak !== undefined) updates.dailyStreak = dailyStreak;
+    if (currentRank !== undefined) updates.currentRank = currentRank;
+
+    await rtdb.ref(`users/${userId}`).update(updates);
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    const updatedUser = snapshot.val();
 
     res.status(200).json({
       message: 'User stats updated successfully',
       user: {
-        id: updatedUser.id,
+        id: userId,
         level: updatedUser.level,
         xp: updatedUser.xp,
         dailyStreak: updatedUser.dailyStreak,
@@ -102,13 +106,12 @@ export async function addXpAndCheckLevelUp(
       return res.status(400).json({ error: 'Invalid XP amount' });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    if (!snapshot.exists()) {
       return res.status(404).json({ error: 'User not found' });
     }
+
+    const user = snapshot.val();
 
     // Calculate new XP and level
     const currentXp = user.xp || 0;
@@ -126,18 +129,16 @@ export async function addXpAndCheckLevelUp(
     }
 
     // Update user
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        xp: newXp,
-        level: newLevel,
-        lastActiveDate: new Date(),
-      },
-    });
+    const updates = {
+      xp: newXp,
+      level: newLevel,
+      lastActiveDate: new Date().toISOString(),
+    };
+    await rtdb.ref(`users/${userId}`).update(updates);
 
     // Response includes level up info
     res.status(200).json({
-      updatedUser,
+      updatedUser: { id: userId, ...user, ...updates },
       message: 'XP added successfully',
       xpAdded: xpAmount,
       newXp: newXp,
@@ -158,15 +159,13 @@ export async function checkAndUpdateStreak(
   try {
     const userId = req.user.id;
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
-
-    if (!user) {
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    if (!snapshot.exists()) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const lastActive = user.lastActiveDate;
+    const user = snapshot.val();
+    const lastActive = user.lastActiveDate ? new Date(user.lastActiveDate) : null;
     const currentTime = new Date();
     let updatedStreak = user.dailyStreak || 0;
     let streakReset = false;
@@ -180,41 +179,24 @@ export async function checkAndUpdateStreak(
         // More than 48 hours - reset streak
         updatedStreak = 0;
         streakReset = true;
-      } else if (hoursSinceActive > 24) {
-        // Between 24-48 hours - can maintain streak with activity
-        // Keep streak, but needs to be updated
-      } else {
-        // Less than 24 hours - already active today
       }
     }
 
     // Update lastActiveDate
-    await prisma.user.update({
-      where: { id: userId },
-      data: {
-        lastActiveDate: currentTime,
-        dailyStreak: updatedStreak,
-      },
+    await rtdb.ref(`users/${userId}`).update({
+      lastActiveDate: currentTime.toISOString(),
+      dailyStreak: updatedStreak,
     });
 
     res.status(200).json({
       currentStreak: updatedStreak,
       streakReset,
-      lastActive: currentTime,
+      lastActive: currentTime.toISOString(),
     });
   } catch (error) {
     logger.error('Error checking streak:', error);
     res.status(500).json({ error: 'Failed to check streak' });
   }
-}
-
-// Helper function to determine rank based on level
-function determineRank(level: number): string {
-  if (level >= 10) return 'Finance Guru';
-  if (level >= 7) return 'Budget Master';
-  if (level >= 5) return 'Money Manager';
-  if (level >= 3) return 'Financial Student';
-  return 'Finance Novice';
 }
 
 // Keep the existing function
@@ -223,13 +205,9 @@ export async function getFlashcardDecks(
   res: Response
 ) {
   try {
-    const id = req.user.id;
-    const decks = await prisma.user.findFirst({
-      where: {
-        id,
-      },
-    });
-    res.status(200).json({ decks });
+    const userId = req.user.id;
+    const snapshot = await rtdb.ref(`users/${userId}`).once('value');
+    res.status(200).json({ decks: { id: userId, ...snapshot.val() } });
   } catch (error) {
     logger.error('Error fetching flashcard decks:', error);
     res.status(500).json({ error: 'Failed to fetch flashcard decks' });

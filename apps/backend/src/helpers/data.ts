@@ -59,3 +59,19 @@ export const verifyEmailToken = async (token: string) => {
   
   return { id: tokenData.userId, ...userSnapshot.val() };
 };
+
+export const getAccountByProviderId = async (providerAccountId: string) => {
+  const accountsRef = rtdb.ref('accounts');
+  const snapshot = await accountsRef.orderByChild('providerAccountId').equalTo(providerAccountId).once('value');
+  if (!snapshot.exists()) return null;
+  const accounts = snapshot.val();
+  const accountId = Object.keys(accounts)[0];
+  return { id: accountId, ...accounts[accountId] };
+};
+
+export const createAccount = async (data: any) => {
+  const accountsRef = rtdb.ref('accounts');
+  const newAccountRef = accountsRef.push();
+  await newAccountRef.set(data);
+  return { id: newAccountRef.key, ...data };
+};

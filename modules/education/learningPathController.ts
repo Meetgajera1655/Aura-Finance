@@ -1,12 +1,14 @@
-import { prisma } from '../../database/prisma/client';
 import { Request, Response } from 'express';
 import { logger } from '../../apps/backend/src/utils/logger';
+import { rtdb } from '../../apps/backend/src/config/firebase';
+
+const toArray = (obj: any) => obj ? Object.keys(obj).map(key => ({ id: key, ...obj[key] })) : [];
+
 // Get all learning paths
 export async function getLearningPaths(req: Request, res: Response) {
   try {
-    const paths = await prisma.learningPath.findMany({
-      include: { lessons: true },
-    });
+    const snapshot = await rtdb.ref('learningPaths').once('value');
+    const paths = toArray(snapshot.val());
     res.status(200).json({ paths });
   } catch (error) {
     logger.error('Error fetching learning paths:', error);
@@ -18,12 +20,11 @@ export async function getLearningPaths(req: Request, res: Response) {
 export async function getLearningPathById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const path = await prisma.learningPath.findUnique({
-      where: { id },
-      include: { lessons: true },
-    });
-    if (!path)
+    const snapshot = await rtdb.ref(`learningPaths/${id}`).once('value');
+    if (!snapshot.exists())
       return res.status(404).json({ error: 'Learning path not found' });
+    
+    const path = { id, ...snapshot.val() };
     res.status(200).json({ path });
   } catch (error) {
     logger.error('Error fetching learning path:', error);
@@ -35,10 +36,10 @@ export async function getLearningPathById(req: Request, res: Response) {
 export async function createLearningPath(req: Request, res: Response) {
   try {
     const { title, color, icon } = req.body;
-    const path = await prisma.learningPath.create({
-      data: { title, color, icon },
-    });
-    res.status(201).json({ path });
+    const ref = rtdb.ref('learningPaths').push();
+    const data = { title, color, icon, createdAt: new Date().toISOString() };
+    await ref.set(data);
+    res.status(201).json({ path: { id: ref.key, ...data } });
   } catch (error) {
     logger.error('Error creating learning path:', error);
     res.status(500).json({ error: 'Failed to create learning path' });
@@ -49,11 +50,9 @@ export async function createLearningPath(req: Request, res: Response) {
 export async function updateLearningPath(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const path = await prisma.learningPath.update({
-      where: { id },
-      data: req.body,
-    });
-    res.status(200).json({ path });
+    await rtdb.ref(`learningPaths/${id}`).update(req.body);
+    const snapshot = await rtdb.ref(`learningPaths/${id}`).once('value');
+    res.status(200).json({ path: { id, ...snapshot.val() } });
   } catch (error) {
     logger.error('Error updating learning path:', error);
     res.status(500).json({ error: 'Failed to update learning path' });
@@ -64,7 +63,7 @@ export async function updateLearningPath(req: Request, res: Response) {
 export async function deleteLearningPath(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    await prisma.learningPath.delete({ where: { id } });
+    await rtdb.ref(`learningPaths/${id}`).remove();
     res.status(204).end();
   } catch (error) {
     logger.error('Error deleting learning path:', error);
