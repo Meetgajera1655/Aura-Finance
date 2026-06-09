@@ -21,8 +21,12 @@ config();
 
 const options: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.ACCESS_JWT_SECRET as string,
+  secretOrKey: process.env.ACCESS_JWT_SECRET || 'fallback_insecure_secret',
 };
+
+if (!process.env.ACCESS_JWT_SECRET) {
+  console.warn('⚠️ WARNING: ACCESS_JWT_SECRET is not set. Using insecure fallback secret. Please set this in your environment variables.');
+}
 
 const JWTProvider = new JwtStrategy(options, async (jwt_payload, done) => {
   try {
