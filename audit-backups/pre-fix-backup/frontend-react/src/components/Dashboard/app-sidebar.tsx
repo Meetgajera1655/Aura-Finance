@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AArrowUp, BarChart3Icon, CircleDollarSign, Coins, CreditCard, LayoutDashboard, MessageSquare, Newspaper, TrendingUp, Briefcase } from "lucide-react";
-import AuraFinanceLogo from '../../assets/AuraFinance-logo.png';
+import AuraFinanceLogo from '../../assets/auraFinance-logo.png';
 
 import {
   Sidebar,
@@ -112,8 +112,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar {...props}>
       <SidebarHeader className="flex items-center justify-between p-4">
-        <div 
-          className="flex items-center space-x-2 cursor-pointer transition-opacity hover:opacity-80" 
+        <div
+          className="flex items-center space-x-2 cursor-pointer transition-opacity hover:opacity-80"
           onClick={handleLogoClick}
           role="button"
           tabIndex={0}
@@ -125,7 +125,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           }}
           aria-label="Go to homepage"
         >
-          <img src={AuraFinanceLogo} alt="AuraFinance Logo"/>
+          <img src={AuraFinanceLogo} alt="AuraFinance Logo" />
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -137,8 +137,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {group.items.map((item) => (
                   <SidebarMenuItem key={item.title}>
                     <SidebarMenuButton asChild>
-                      <Link 
-                        to={item.url} 
+                      <Link
+                        to={item.url}
                         className="flex items-center"
                         onClick={handleNavigation}
                       >
