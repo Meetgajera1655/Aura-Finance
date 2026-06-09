@@ -1,124 +1,214 @@
 import React from "react";
+import { motion } from "framer-motion";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"; // Assuming shadcn/ui Card components
+} from "@/components/ui/card";
+import { ShieldCheck, LineChart, LayoutDashboard, Blocks, Zap, Users, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+
+const features = [
+  {
+    title: "Secure Authentication",
+    description: "Enterprise-grade security built on Node.js. Your data integrity and user trust are our highest priority.",
+    icon: ShieldCheck,
+    color: "text-blue-500",
+    bg: "bg-blue-500/10"
+  },
+  {
+    title: "AI Sentiment Analysis",
+    description: "Leverage Python-powered artificial intelligence to analyze news and detect real-time market sentiment.",
+    icon: Zap,
+    color: "text-amber-500",
+    bg: "bg-amber-500/10"
+  },
+  {
+    title: "Dynamic Dashboards",
+    description: "Sleek, responsive interfaces crafted with React. Visualize complex financial data through beautiful charts.",
+    icon: LayoutDashboard,
+    color: "text-purple-500",
+    bg: "bg-purple-500/10"
+  },
+  {
+    title: "Modular Architecture",
+    description: "Designed for scale. Easily extend and customize the platform with new tools as your application evolves.",
+    icon: Blocks,
+    color: "text-emerald-500",
+    bg: "bg-emerald-500/10"
+  },
+  {
+    title: "Real-time Analytics",
+    description: "Process and analyze market trends instantly. Make smarter, data-driven decisions faster than ever.",
+    icon: LineChart,
+    color: "text-rose-500",
+    bg: "bg-rose-500/10"
+  },
+  {
+    title: "Seamless Integration",
+    description: "Flexible API-first design ensures you can connect with external financial services and third-party tools.",
+    icon: Users,
+    color: "text-cyan-500",
+    bg: "bg-cyan-500/10"
+  }
+];
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: {
+    y: 0,
+    opacity: 1,
+    transition: { type: "spring", stiffness: 100 },
+  },
+};
 
 const About: React.FC = () => {
   return (
-    <div className="mx-auto px-4 py-16 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-black min-h-screen transition-colors duration-300">
-      <h1 className="text-5xl font-extrabold text-center text-gray-900 dark:text-white mb-12 leading-tight">
-        About <span className="text-blue-600 dark:text-blue-400">AuraFinance</span>
-      </h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden pt-24 pb-32">
+        <div className="absolute inset-0 bg-linear-to-br from-blue-100/50 to-purple-100/50 dark:from-blue-900/20 dark:to-purple-900/20 -z-10" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] opacity-30 dark:opacity-20 pointer-events-none"
+             style={{ background: "radial-gradient(circle, rgba(59,130,246,0.8) 0%, rgba(147,51,234,0) 70%)" }} />
+             
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 dark:text-white mb-6 tracking-tight">
+              About <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 to-indigo-600 dark:from-blue-400 dark:to-indigo-400">AuraFinance</span>
+            </h1>
+            <p className="text-xl md:text-2xl text-slate-600 dark:text-slate-300 max-w-3xl mx-auto leading-relaxed mb-10">
+              AuraFinance is a cutting-edge, open-source platform crafted to deliver advanced, AI-powered financial tools and actionable insights.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Link to="/signup">
+                <Button size="lg" className="rounded-full px-8 bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25">
+                  Get Started <ArrowRight className="ml-2 w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        </div>
+      </section>
 
-      <p className="text-xl text-center text-gray-700 dark:text-gray-300 mb-16 max-w-3xl mx-auto">
-        <strong>AuraFinance</strong> is a cutting-edge, open-source, and highly modular platform crafted to deliver advanced, AI-powered financial tools and actionable insights. We're here to empower your financial innovation.
-      </p>
+      {/* Mission & Vision */}
+      <section className="py-24 bg-white dark:bg-slate-900 border-y border-slate-200 dark:border-slate-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid md:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-6">Our Mission</h2>
+              <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed mb-6">
+                At AuraFinance, our mission is to empower individuals and businesses with <strong className="text-slate-900 dark:text-white font-semibold">cutting-edge financial technology solutions</strong>. We believe in democratizing access to powerful tools and insights, enabling smarter financial decisions for everyone.
+              </p>
+              <p className="text-lg text-slate-600 dark:text-slate-300 leading-relaxed">
+                We're dedicated to building robust, secure, and user-friendly applications that transform complex financial data into clear, actionable intelligence.
+              </p>
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
+              className="relative"
+            >
+              <div className="absolute inset-0 bg-linear-to-r from-blue-500 to-purple-500 rounded-3xl blur-2xl opacity-20 dark:opacity-40" />
+              <div className="relative bg-slate-50 dark:bg-slate-950 p-8 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-xl">
+                <h3 className="text-2xl font-semibold text-slate-900 dark:text-white mb-6">Why Choose Us?</h3>
+                <ul className="space-y-4">
+                  {[
+                    "State-of-the-art AI algorithms for deep market insights",
+                    "Interactive and engaging data visualizations",
+                    "Top-tier security standards to protect sensitive data",
+                    "Modular architecture for effortless extension"
+                  ].map((item, i) => (
+                    <li key={i} className="flex items-start">
+                      <div className="shrink-0 w-6 h-6 rounded-full bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center mt-0.5 mr-3">
+                        <svg className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-slate-700 dark:text-slate-300">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
 
-      {/* Our Mission */}
-      <Card className="mb-10 shadow-lg border-l-4 border-blue-500 dark:border-blue-400 dark:bg-gray-800">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-gray-800 dark:text-white">
-            Our Mission
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-          At AuraFinance, our mission is to empower individuals and businesses with <strong>cutting-edge financial technology solutions</strong>. We believe in democratizing access to powerful tools and insights, enabling <strong>smarter financial decisions</strong> for everyone. We're dedicated to building robust, secure, and user-friendly applications that transform complex financial data into clear, actionable intelligence.
-        </CardContent>
-      </Card>
+      {/* Features Grid */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-slate-900 dark:text-white mb-4">Unlock Powerful Features</h2>
+            <p className="text-lg text-slate-600 dark:text-slate-400">Everything you need to build the next generation of financial applications, right out of the box.</p>
+          </div>
 
-      {/* What We Offer */}
-      <Card className="mb-10 shadow-lg border-l-4 border-blue-500 dark:border-blue-400 dark:bg-gray-800">
-        <CardHeader>
-          <CardTitle className="text-3xl font-bold text-gray-800 dark:text-white">
-            What We Offer
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-          AuraFinance is more than just a set of tools; it's a comprehensive foundation for limitless innovation. We empower you to seamlessly:
-          <ul className="list-disc list-inside mt-4 space-y-2">
-            <li>Integrate <strong>state-of-the-art AI algorithms</strong> for deep market insights and predictive analytics.</li>
-            <li>Create highly <strong>interactive and engaging data visualizations</strong> that turn raw numbers into clear stories.</li>
-            <li>Ensure <strong>top-tier security standards</strong> to protect sensitive financial data and user privacy.</li>
-            <li>Leverage a <strong>modular architecture</strong> that allows for effortless extension and customization as your project evolves.</li>
-          </ul>
-          Whether you're exploring machine learning for market predictions, building real-time financial tracking dashboards, or enhancing user security features, AuraFinance serves as the ideal starting point for your financial solutions.
-        </CardContent>
-      </Card>
+          <motion.div 
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: "-100px" }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          >
+            {features.map((feature, index) => (
+              <motion.div key={index} variants={itemVariants}>
+                <Card className="h-full border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm hover:shadow-lg dark:hover:shadow-2xl dark:hover:shadow-blue-900/20 transition-all duration-300 group">
+                  <CardHeader>
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-4 ${feature.bg} ${feature.color} group-hover:scale-110 transition-transform duration-300`}>
+                      <feature.icon className="w-6 h-6" />
+                    </div>
+                    <CardTitle className="text-xl font-semibold text-slate-900 dark:text-white">{feature.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-slate-600 dark:text-slate-400 leading-relaxed">
+                      {feature.description}
+                    </p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
 
-      {/* Features */}
-      <h2 className="text-4xl font-bold text-center text-gray-900 dark:text-white mb-10 mt-16">
-        Unlock Powerful Features
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
-        <Card className="shadow-md dark:shadow-xl hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Secure Authentication System
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-gray-600 dark:text-gray-300">
-            A powerful and secure user authentication system built with <strong>Node.js</strong>, ensuring safe access to financial data and services. Your data integrity and user trust are paramount.
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md dark:shadow-xl hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              AI-Powered News Sentiment Analysis
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-gray-600 dark:text-gray-300">
-            Leverage artificial intelligence (powered by <strong>Python</strong>) to analyze financial news, detect real-time market sentiment, and gain valuable, data-driven insights for smarter decision-making.
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md dark:shadow-xl hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Dynamic Financial Dashboard & UI
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-gray-600 dark:text-gray-300">
-            A sleek, user-friendly interface crafted with <strong>React</strong>, designed to display real-time financial data, comprehensive analytics, and market trends through an engaging and highly responsive dashboard.
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md dark:shadow-xl hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              Modular & Extensible Architecture
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-gray-600 dark:text-gray-300">
-            Designed with flexibility in mind, AuraFinance boasts a <strong>modular architecture</strong> that allows you to easily extend and customize the platform with new financial tools and features as your application evolves.
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-md dark:shadow-xl hover:shadow-xl dark:hover:shadow-2xl transition-shadow duration-300 dark:bg-gray-800">
-          <CardHeader>
-            <CardTitle className="text-2xl font-semibold text-gray-900 dark:text-white">
-              API-based Design for Seamless Integration
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-gray-600 dark:text-gray-300">
-            Our flexible, <strong>API-based architecture</strong> ensures seamless integration with other platforms, external financial services, and third-party tools, providing endless possibilities for your ecosystem.
-          </CardContent>
-        </Card>
-      </div>
-
-
-      <div className="text-center mt-12 py-8 bg-blue-50 dark:bg-blue-950 rounded-lg shadow-inner dark:shadow-blue-900 transition-colors duration-300">
-        <p className="text-xl text-gray-800 dark:text-white font-medium mb-4">
-          Ready to revolutionize your financial applications?
-        </p>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Join the AuraFinance community and start building your vision for the future of finance today!
-        </p>
-      </div>
+      {/* CTA Section */}
+      <section className="py-24 bg-slate-900 dark:bg-black relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">Ready to revolutionize your financial applications?</h2>
+          <p className="text-xl text-slate-300 mb-10">
+            Join the AuraFinance community and start building your vision for the future of finance today.
+          </p>
+          <Link to="/signup">
+            <Button size="lg" className="rounded-full px-10 h-14 text-lg bg-blue-600 hover:bg-blue-700 text-white border-0 shadow-[0_0_40px_rgba(59,130,246,0.4)] hover:shadow-[0_0_60px_rgba(59,130,246,0.6)] transition-shadow">
+              Get Started Now
+            </Button>
+          </Link>
+        </div>
+      </section>
     </div>
   );
 };
