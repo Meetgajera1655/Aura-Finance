@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon --exec ts-node --transpile-only server.ts"
+    "dev": "nodemon --exec ts-node --transpile-only server.ts",
+    "start": "ts-node --transpile-only server.ts"
   },
   "author": "",
   "license": "ISC",
