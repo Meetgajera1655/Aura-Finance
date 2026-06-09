@@ -21,8 +21,13 @@ try {
 }
 
 if (!admin.apps.length) {
+  if (!serviceAccount) {
+    console.error('CRITICAL: Firebase service account credentials are not set. Exiting or throwing error to prevent hang.');
+    // We cannot proceed without Firebase, throw an error immediately
+    throw new Error('Firebase service account credentials are required.');
+  }
   admin.initializeApp({
-    credential: serviceAccount ? admin.credential.cert(serviceAccount) : admin.credential.applicationDefault(),
+    credential: admin.credential.cert(serviceAccount),
     databaseURL: 'https://aurafinance-6d710-default-rtdb.asia-southeast1.firebasedatabase.app'
   });
 }

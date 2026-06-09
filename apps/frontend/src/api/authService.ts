@@ -10,7 +10,8 @@ const authApiClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true
+  withCredentials: true,
+  timeout: 15000 // 15 seconds timeout
 });
 
 export const signUp = async (data: signupUser) => {

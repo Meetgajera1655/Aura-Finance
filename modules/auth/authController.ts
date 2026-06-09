@@ -50,7 +50,9 @@ const signup = async (req: Request, res: Response, next: NextFunction) => {
     if (newUser) {
       const verificationToken = generateVerificationToken();
       await saveEmailVerificationToken(newUser.id, verificationToken);
-      await sendVerificationEmail(newUser.email, verificationToken);
+      sendVerificationEmail(newUser.email, verificationToken).catch((err) => {
+        console.error('Background email sending failed:', err);
+      });
       
       res.status(200).json({
         message: 'Sent verification email',
