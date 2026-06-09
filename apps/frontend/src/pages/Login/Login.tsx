@@ -46,10 +46,22 @@ const LoginForm: React.FC = () => {
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
   return (
-    <div className="flex min-h-screen w-full">
+    <div className="flex min-h-screen w-full relative">
+      {/* Mobile Background */}
+      <div 
+        className="absolute inset-0 z-0 lg:hidden"
+        style={{
+          backgroundImage: "url('/auth_bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
+      >
+        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md z-0"></div>
+      </div>
+
       {/* Left Panel: Branding / Showcase (Hidden on Mobile) */}
       <div 
-        className="hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden items-center justify-center"
+        className="hidden lg:flex w-1/2 relative bg-slate-900 overflow-hidden items-center justify-center z-10"
         style={{
           backgroundImage: "url('/auth_bg.png')",
           backgroundSize: "cover",
@@ -92,29 +104,29 @@ const LoginForm: React.FC = () => {
       </div>
 
       {/* Right Panel: The Form */}
-      <div className="flex w-full lg:w-1/2 min-h-screen bg-white dark:bg-gray-950 items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-[440px] space-y-8">
+      <div className="flex w-full lg:w-1/2 min-h-screen bg-transparent lg:bg-white lg:dark:bg-gray-950 items-center justify-center p-4 sm:p-8 lg:p-12 z-10">
+        <div className="w-full max-w-[440px] space-y-8 bg-white/10 dark:bg-gray-950/40 lg:bg-transparent lg:dark:bg-transparent p-6 sm:p-10 lg:p-0 rounded-[2rem] backdrop-blur-xl lg:backdrop-blur-none border border-white/20 lg:border-transparent shadow-2xl lg:shadow-none">
           
           {/* Mobile Logo (hidden on large screens) */}
-          <div className="flex lg:hidden items-center justify-center space-x-3 mb-6">
-            <LogoIcon className="w-12 h-12 text-blue-600 dark:text-blue-400" />
+          <div className="flex lg:hidden items-center justify-center space-x-3 mb-2">
+            <LogoIcon className="w-12 h-12 text-blue-400 drop-shadow-lg" />
             <div className="flex items-baseline">
-              <span className="text-3xl font-extrabold text-slate-900 dark:text-white tracking-tighter">AURA</span>
-              <span className="text-3xl font-light text-amber-500 ml-0.5">FINANCE</span>
+              <span className="text-3xl font-extrabold text-white tracking-tighter drop-shadow-md">AURA</span>
+              <span className="text-3xl font-light text-amber-500 ml-0.5 drop-shadow-md">FINANCE</span>
             </div>
           </div>
 
           <div className="space-y-2 text-center lg:text-left">
-            <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold tracking-tight text-white lg:text-gray-900 lg:dark:text-white drop-shadow-sm lg:drop-shadow-none">
               Welcome back
             </h1>
-            <p className="text-gray-500 dark:text-gray-400">
+            <p className="text-gray-200 lg:text-gray-500 lg:dark:text-gray-400">
               Enter your credentials to access your account
             </p>
           </div>
 
           {errors.root && (
-            <div className="flex items-center bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 p-4 rounded-xl">
+            <div className="flex items-center bg-red-50/90 dark:bg-red-900/40 border border-red-300 dark:border-red-800 text-red-700 dark:text-red-400 p-4 rounded-xl backdrop-blur-md">
               <AlertCircle className="w-5 h-5 mr-3 flex-shrink-0" />
               <span className="text-sm font-medium">{errors.root.message}</span>
             </div>
@@ -122,7 +134,7 @@ const LoginForm: React.FC = () => {
 
           <form className="space-y-5" onSubmit={handleSubmit(onSubmit)} noValidate>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Label htmlFor="email" className="text-sm font-semibold text-white lg:text-gray-700 lg:dark:text-gray-300">
                 Email Address
               </Label>
               <Input
@@ -131,19 +143,19 @@ const LoginForm: React.FC = () => {
                 type="email"
                 placeholder="name@example.com"
                 required
-                className="h-12 rounded-xl border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:text-white transition-all shadow-sm"
+                className="h-12 rounded-xl border-white/20 lg:border-gray-200 lg:dark:border-gray-800 focus:ring-2 focus:ring-blue-500 bg-white/10 lg:bg-transparent lg:dark:bg-gray-900 text-white lg:text-gray-900 lg:dark:text-white placeholder:text-gray-300 lg:placeholder:text-gray-500 transition-all shadow-sm backdrop-blur-sm lg:backdrop-blur-none"
               />
-              {errors.email && <p className="text-sm text-red-500 font-medium mt-1">{errors.email.message}</p>}
+              {errors.email && <p className="text-sm text-red-400 lg:text-red-500 font-medium mt-1">{errors.email.message}</p>}
             </div>
 
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <Label htmlFor="password" className="text-sm font-semibold text-white lg:text-gray-700 lg:dark:text-gray-300">
                   Password
                 </Label>
                 <Link
                   to="/forgot-password"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-800 hover:underline transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+                  className="text-sm font-medium text-blue-300 lg:text-blue-600 hover:text-white lg:hover:text-blue-800 hover:underline transition-colors lg:dark:text-blue-400 lg:dark:hover:text-blue-300"
                 >
                   Forgot password?
                 </Link>
@@ -155,18 +167,18 @@ const LoginForm: React.FC = () => {
                   type={showPassword ? "text" : "password"}
                   placeholder="Enter your password"
                   required
-                  className="h-12 rounded-xl border-gray-200 dark:border-gray-800 focus:ring-2 focus:ring-blue-500 pr-12 dark:bg-gray-900 dark:text-white transition-all shadow-sm"
+                  className="h-12 rounded-xl border-white/20 lg:border-gray-200 lg:dark:border-gray-800 focus:ring-2 focus:ring-blue-500 pr-12 bg-white/10 lg:bg-transparent lg:dark:bg-gray-900 text-white lg:text-gray-900 lg:dark:text-white placeholder:text-gray-300 lg:placeholder:text-gray-500 transition-all shadow-sm backdrop-blur-sm lg:backdrop-blur-none"
                 />
                 <button
                   type="button"
                   onClick={togglePasswordVisibility}
-                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-300 lg:text-gray-400 hover:text-white lg:hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                 </button>
               </div>
-              {errors.password && <p className="text-sm text-red-500 font-medium mt-1">{errors.password.message}</p>}
+              {errors.password && <p className="text-sm text-red-400 lg:text-red-500 font-medium mt-1">{errors.password.message}</p>}
             </div>
 
             <Button
@@ -181,10 +193,10 @@ const LoginForm: React.FC = () => {
 
           <div className="relative my-8">
             <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t border-gray-200 dark:border-gray-800" />
+              <span className="w-full border-t border-white/20 lg:border-gray-200 lg:dark:border-gray-800" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="bg-white dark:bg-gray-950 px-4 text-gray-500 font-medium">
+              <span className="bg-transparent lg:bg-white lg:dark:bg-gray-950 px-4 text-gray-300 lg:text-gray-500 font-medium backdrop-blur-md lg:backdrop-blur-none rounded-full">
                 Or continue with
               </span>
             </div>
@@ -194,11 +206,11 @@ const LoginForm: React.FC = () => {
             <SocialButtons />
           </div>
 
-          <p className="text-center text-sm text-gray-600 dark:text-gray-400 mt-8">
+          <p className="text-center text-sm text-gray-300 lg:text-gray-600 lg:dark:text-gray-400 mt-8">
             Don't have an account?{" "}
             <Link
               to="/SignUp"
-              className="font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors dark:text-blue-400 dark:hover:text-blue-300"
+              className="font-semibold text-blue-400 lg:text-blue-600 hover:text-blue-300 lg:hover:text-blue-800 hover:underline transition-colors lg:dark:text-blue-400 lg:dark:hover:text-blue-300"
             >
               Create an account
             </Link>

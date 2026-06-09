@@ -215,17 +215,15 @@ export function ChatBot() {
     // Define all valid routes explicitly
     const validRoutes = [
       '/',
-      '/News',
+      '/news',
       '/map',
-      '/About',
-      '/Features', 
-      '/Premium',
-      '/Pricing',
-      '/Community',
+      '/about',
+      '/features', 
+      '/premium',
+      '/pricing',
+      '/community',
       '/profile',
       '/education',
-      '/login',
-      '/signup',
       '/verifymail',
       '/forgot-password',
       // Dashboard routes
@@ -241,8 +239,9 @@ export function ChatBot() {
       '/dashboard/portfolio'
     ];
     
-    // Check for exact matches first
-    if (validRoutes.includes(currentPath)) {
+    // Check for exact matches first (case insensitive)
+    const currentPathLower = currentPath.toLowerCase();
+    if (validRoutes.includes(currentPathLower)) {
       return false;
     }
     
