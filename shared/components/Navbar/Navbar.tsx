@@ -184,64 +184,61 @@ const Navbar: React.FC = () => {
 
             {/* Mobile: Sheet-trigger */}
             <div className="md:hidden flex items-center ml-2">
-              {!isLoggedIn && (
-                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Menu className="h-6 w-6" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right">
-                    <div className="flex flex-col space-y-4 mt-4">
-                      <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>Home</Link>
-                      <Link to="/Features" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>Features</Link>
-                      <Link to="/About" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>About</Link>
-                      <Link to="/Premium" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>
-                        Premium <Crown className="ml-1 h-4 w-4 text-yellow-500" />
+              <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon" className="hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full">
+                    <Menu className="h-6 w-6 text-slate-700 dark:text-slate-300" />
+                    <span className="sr-only">Toggle menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-l border-slate-200 dark:border-slate-800 p-0 flex flex-col h-full shadow-2xl">
+                  <div className="p-6 pb-4 border-b border-slate-200/50 dark:border-slate-800/50 flex items-center space-x-2">
+                    <LogoIcon className="w-8 h-8 text-blue-600 dark:text-blue-400" />
+                    <span className="text-xl font-bold text-[#0F172A] dark:text-white tracking-tighter">AURA<span className="font-light text-[#F59E0B]">FINANCE</span></span>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1 custom-scrollbar">
+                    {[
+                      { to: "/", label: "Home" },
+                      ...(isLoggedIn ? [{ to: "/dashboard", label: "Dashboard" }] : []),
+                      { to: "/News", label: "News" },
+                      { to: "/About", label: "About" },
+                      { to: "/Premium", label: "Premium", icon: <Crown className="ml-2 h-4 w-4 text-yellow-500" /> },
+                      { to: "/Pricing", label: "Pricing" },
+                      ...(isLoggedIn ? [{ to: "/Community", label: "Community" }] : []),
+                      { to: "/faq", label: "FAQ" },
+                      { to: "/feedback", label: "Feedback" },
+                    ].map((link) => (
+                      <Link
+                        key={link.to}
+                        to={link.to}
+                        className="flex items-center w-full px-4 py-3 text-base font-medium text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/70 hover:text-blue-600 dark:hover:text-blue-400 rounded-xl transition-all duration-200"
+                        onClick={handleMobileNavigation}
+                      >
+                        {link.label}
+                        {link.icon}
                       </Link>
-                      <Link to="/Pricing" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>Pricing</Link>
-                      <Link to="/faq" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>FAQ</Link>
-                      <Link to="/feedback" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>Feedback</Link>
-                      <Link to="/login" onClick={handleMobileNavigation}>
-                        <Button variant="outline">Log In</Button>
-                      </Link>
-                      <Link to="/signup" onClick={handleMobileNavigation}>
-                        <Button>Sign Up</Button>
-                      </Link>
+                    ))}
+                  </div>
+
+                  <div className="p-6 border-t border-slate-200/50 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-900/50 space-y-4">
+                    {!isLoggedIn && (
+                      <div className="flex flex-col space-y-3">
+                        <Link to="/login" onClick={handleMobileNavigation} className="w-full">
+                          <Button variant="outline" className="w-full justify-center h-12 rounded-xl border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-base font-medium shadow-sm transition-all duration-200">Log In</Button>
+                        </Link>
+                        <Link to="/signup" onClick={handleMobileNavigation} className="w-full">
+                          <Button className="w-full justify-center h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-base font-medium shadow-md shadow-blue-500/20 transition-all duration-200">Sign Up</Button>
+                        </Link>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between pt-2">
+                      <span className="text-sm font-medium text-slate-500 dark:text-slate-400">Theme Preference</span>
                       <ModeToggle />
                     </div>
-                  </SheetContent>
-                </Sheet>
-              )}
-              {isLoggedIn && (
-                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-                  <SheetTrigger asChild>
-                    <Button variant="outline" size="icon">
-                      <Menu className="h-6 w-6" />
-                      <span className="sr-only">Toggle menu</span>
-                    </Button>
-                  </SheetTrigger>
-                  <SheetContent side="right">
-                    <div className="flex flex-col space-y-4 mt-4">
-                      <Link to="/" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>Home</Link>
-                      <Link to="/dashboard" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>Dashboard</Link>
-                      <Link to="/News" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>News</Link>
-                      <Link to="/About" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white" onClick={handleMobileNavigation}>About</Link>
-                      <Link to="/Premium" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>
-                        Premium <Crown className="ml-1 h-4 w-4 text-yellow-500" />
-                      </Link>
-                      <Link to="/Pricing" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>Pricing</Link>
-                      <Link to="/Community" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>Community</Link>
-                      <Link to="/faq" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>FAQ</Link>
-                      <Link to="/feedback" className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white flex items-center" onClick={handleMobileNavigation}>Feedback</Link>
-                      <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                        <ModeToggle />
-                      </div>
-                    </div>
-                  </SheetContent>
-                </Sheet>
-              )}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
         </nav>
