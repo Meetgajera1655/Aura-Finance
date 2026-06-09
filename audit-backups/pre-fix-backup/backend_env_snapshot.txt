@@ -1,0 +1,25 @@
+FRONTEND_URL=http://localhost:5173
+PYTHON_BACKEND_URL=http://localhost:8000/api/v1
+
+# Security Configuration
+# Comma-separated list of allowed CORS origins
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173
+NODE_ENV=development
+
+GOOGLE_CLIENT_ID=dummy_google_id
+GOOGLE_CLIENT_SECRET=dummy_google_secret
+GOOGLE_CALLBACK_URL=http://localhost:5050/auth/google/callback
+
+GITHUB_CLIENT_ID=dummy_github_id
+GITHUB_CLIENT_SECRET=dummy_github_secret
+GITHUB_CALLBACK_URL=
+
+EMAIL_USER="dummy@gmail.com"
+EMAIL_PASS="dummy_pass"
+
+ACCESS_JWT_SECRET=SuperSecretKey123!@#
+REFRESH_JWT_SECRET=AnotherSuperSecretKey456!@#
+
+DATABASE_URL="postgresql://postgres:meet1655@localhost:5432/aurafinance?schema=public"
+
+RAPID_API_KEY=dummy_rapidapi_key

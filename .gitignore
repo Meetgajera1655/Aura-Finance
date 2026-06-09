@@ -1,0 +1,11 @@
+node_modules/
+venv/
+.env
+.env.local
+.DS_Store
+dist/
+build/
+*.log
+__pycache__/
+*.pyc
+firebaseAdmin.json

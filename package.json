@@ -1,0 +1,21 @@
+{
+  "name": "fintechforge-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo for FinTechForge services",
+  "scripts": {
+    "start": "concurrently --kill-others \"npm run node\" \"npm run python\" \"npm run react\"",
+    "node": "cd apps/backend && npm run dev",
+    "python": "cd apps/ai-engine && venv\\Scripts\\python.exe -m uvicorn main:app --reload",
+    "react": "cd apps/frontend && npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "prisma": "^5.22.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.22.0"
+  },
+  "workspaces": [
+    "apps/*"
+  ]
+}
