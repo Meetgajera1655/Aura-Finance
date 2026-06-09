@@ -19,49 +19,6 @@ import { getUserById } from '../helpers/data';
 
 config();
 
-// logger.error('🔍 DEBUG ENV LOADING:');
-// logger.error('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID);
-// logger.error('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET);
-// logger.error('GOOGLE_CALLBACK_URL:', process.env.GOOGLE_CALLBACK_URL);
-// logger.error('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID);
-// logger.error('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET);
-// logger.error('GITHUB_CALLBACK_URL:', process.env.GITHUB_CALLBACK_URL);
-// logger.error('ACCESS_JWT_SECRET:', process.env.ACCESS_JWT_SECRET);
-
-const GoogleProvider = new GoogleStrategy(
-  {
-    clientID: process.env.GOOGLE_CLIENT_ID as string,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
-    callbackURL: process.env.GOOGLE_CALLBACK_URL,
-    scope: ['profile', 'email'],
-  },
-  async function (
-    accessToken: string,
-    refreshToken: string,
-    profile: GoogleProfile,
-    done
-  ) {
-    await LoginWithGoogle(profile, done);
-  }
-);
-
-const GithubProvider = new GithubStrategy(
-  {
-    clientID: process.env.GITHUB_CLIENT_ID as string,
-    clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
-    callbackURL: process.env.GITHUB_CALLBACK_URL as string,
-    scope: ['user:email', 'user:profile'],
-  },
-  async function (
-    accessToken: string,
-    refreshToken: string,
-    profile: GithubProfile,
-    done: VerifyCallback
-  ) {
-    await LoginWithGithub(profile, done);
-  }
-);
-
 const options: StrategyOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: process.env.ACCESS_JWT_SECRET as string,
@@ -78,7 +35,45 @@ const JWTProvider = new JwtStrategy(options, async (jwt_payload, done) => {
 });
 
 export default (passport: PassportStatic) => {
-  passport.use(GoogleProvider);
-  passport.use(GithubProvider);
+  if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    const GoogleProvider = new GoogleStrategy(
+      {
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL,
+        scope: ['profile', 'email'],
+      },
+      async function (
+        accessToken: string,
+        refreshToken: string,
+        profile: GoogleProfile,
+        done
+      ) {
+        await LoginWithGoogle(profile, done);
+      }
+    );
+    passport.use(GoogleProvider);
+  }
+
+  if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+    const GithubProvider = new GithubStrategy(
+      {
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: process.env.GITHUB_CALLBACK_URL as string,
+        scope: ['user:email', 'user:profile'],
+      },
+      async function (
+        accessToken: string,
+        refreshToken: string,
+        profile: GithubProfile,
+        done: VerifyCallback
+      ) {
+        await LoginWithGithub(profile, done);
+      }
+    );
+    passport.use(GithubProvider);
+  }
+
   passport.use(JWTProvider);
 };
