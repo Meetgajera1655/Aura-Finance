@@ -11,7 +11,7 @@ const authApiClient = axios.create({
     'Content-Type': 'application/json',
   },
   withCredentials: true,
-  timeout: 15000 // 15 seconds timeout
+  timeout: 60000 // 60 seconds timeout to accommodate initial Firebase cold start
 });
 
 export const signUp = async (data: signupUser) => {
