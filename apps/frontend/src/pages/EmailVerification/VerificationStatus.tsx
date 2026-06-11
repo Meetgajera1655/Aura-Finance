@@ -85,7 +85,7 @@ const VerificationStatus = () => {
                   className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 h-11"
                   asChild
                 >
-                  <Link to="/login">Go to Login</Link>
+                  <a href="/login">Go to Login</a>
                 </Button>
 
                 <div className="text-center space-y-4">
