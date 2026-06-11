@@ -1,6 +1,5 @@
 import { Button } from "@/components/ui/button";
 import {
-  Link2,
   CheckCircle,
   ArrowRight,
   HelpCircle,
@@ -12,6 +11,7 @@ import { useState, useEffect } from "react";
 import BarLoader from "react-spinners/BarLoader";
 import { verifyUserEmail } from "@/api/authService";
 import { parseApiError } from "@/lib/apiError";
+import LogoIcon from "@/components/LogoIcon";
 
 const VerificationStatus = () => {
   const { verificationToken } = useParams();
@@ -48,107 +48,103 @@ const VerificationStatus = () => {
 
   return (
     <>
-      <div className="min-h-screen bg-gradient-to-b from-blue-300 to-blue-400 flex items-center justify-center p-4">
-        <div className="max-w-lg w-full space-y-8 bg-white p-8 rounded-xl shadow-lg">
-          <div className="flex items-center justify-center gap-2 mb-8">
-            <div className="p-2 bg-blue-500 rounded-xl">
-              <Link2 className="h-6 w-6 text-white" />
+      <div className="min-h-screen bg-slate-50 dark:bg-gray-950 flex items-center justify-center p-4"
+        style={{
+          backgroundImage: "url('/auth_bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center"
+        }}
+      >
+        <div className="absolute inset-0 bg-slate-950/70 backdrop-blur-md z-0"></div>
+        
+        <div className="max-w-lg w-full space-y-8 bg-white/10 dark:bg-gray-950/40 p-8 sm:p-10 rounded-[2rem] backdrop-blur-xl border border-white/20 shadow-2xl relative z-10">
+          
+          {/* Brand Logo & Name */}
+          <div className="flex items-center justify-center space-x-3 mb-8">
+            <LogoIcon className="w-12 h-12 text-blue-400 drop-shadow-lg" />
+            <div className="flex items-baseline">
+              <span className="text-3xl font-extrabold text-white tracking-tighter drop-shadow-md">AURA</span>
+              <span className="text-3xl font-light text-amber-500 ml-0.5 drop-shadow-md">FINANCE</span>
             </div>
-            <span className="text-xl font-semibold">Codentra Technologies</span>
           </div>
 
           {status === "LOADING" && (
-            <div className="flex flex-col justify-center items-center gap-5">
-              <BarLoader />
-              <span className="animate-fadeblink  text-blue-600">
-                Please wait while we verify your email
+            <div className="flex flex-col justify-center items-center gap-5 py-8">
+              <BarLoader color="#3b82f6" />
+              <span className="animate-pulse text-blue-300 font-medium tracking-wide">
+                Please wait while we verify your email...
               </span>
             </div>
           )}
 
           {status === "VERIFIED" && (
-            <>
+            <div className="animate-in fade-in zoom-in duration-500">
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-green-100">
-                  <CheckCircle className="h-8 w-8 text-green-500" />
+                <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-green-500/20 mb-6 ring-4 ring-green-500/10">
+                  <CheckCircle className="h-10 w-10 text-green-400" />
                 </div>
-                <h2 className="mt-6 text-2xl font-semibold text-gray-900">
+                <h2 className="mt-2 text-3xl font-bold tracking-tight text-white drop-shadow-sm">
                   {message}
                 </h2>
-                <p className="mt-2 text-sm text-gray-600">
-                  Your mail is verified and now you can login.
+                <p className="mt-3 text-base text-gray-300">
+                  Your email has been verified. You can now access your dashboard and explore Aura Finance.
                 </p>
               </div>
 
-              <div className="space-y-6">
+              <div className="mt-10 space-y-6">
                 <Button
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 h-11"
+                  className="w-full h-12 rounded-xl text-base font-semibold bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200"
                   asChild
                 >
                   <a href="/login">Go to Login</a>
                 </Button>
 
-                <div className="text-center space-y-4">
-                  <p className="text-sm text-gray-500">
+                <div className="text-center space-y-4 pt-4 border-t border-white/10">
+                  <p className="text-sm text-gray-400">
                     Need help?{" "}
                     <a
                       href="#"
-                      className="text-blue-500 hover:text-blue-600 font-medium"
+                      className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
                     >
                       Contact support
                     </a>
                   </p>
-                  <p className="text-sm text-gray-500">
-                    Want to update your profile?{" "}
-                    <Link
-                      to="#"
-                      className="text-blue-500 hover:text-blue-600 font-medium"
-                    >
-                      Go to Settings
-                    </Link>
-                  </p>
                 </div>
               </div>
-            </>
+            </div>
           )}
 
           {status === "VERIFICATION_ERROR" && (
-            <>
+            <div className="animate-in fade-in zoom-in duration-500">
               <div className="text-center">
-                <div className="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-100 mb-4">
-                  <XCircle className="h-8 w-8 text-red-500" />
+                <div className="mx-auto flex items-center justify-center h-20 w-20 rounded-full bg-red-500/20 mb-6 ring-4 ring-red-500/10">
+                  <XCircle className="h-10 w-10 text-red-400" />
                 </div>
-                <h2 className="text-2xl font-semibold text-gray-900">
-                  Email Verification Failed
+                <h2 className="text-3xl font-bold tracking-tight text-white drop-shadow-sm">
+                  Verification Failed
                 </h2>
-                <p className="mt-2 text-sm text-gray-600">
-                  We're sorry, but we couldn't verify your email address. This
-                  could be due to an expired or invalid verification link.
+                <p className="mt-3 text-base text-gray-300">
+                  We couldn't verify your email address. The link may have expired or is invalid.
                 </p>
               </div>
 
-              <div className="space-y-6">
-                <div className="rounded-md bg-yellow-50 p-4">
+              <div className="mt-8 space-y-6">
+                <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4">
                   <div className="flex">
                     <div className="flex-shrink-0">
                       <HelpCircle
-                        className="h-5 w-5 text-yellow-400"
+                        className="h-5 w-5 text-amber-400"
                         aria-hidden="true"
                       />
                     </div>
                     <div className="ml-3">
-                      <h3 className="text-sm font-medium text-yellow-800">
+                      <h3 className="text-sm font-medium text-amber-300">
                         What can you do now?
                       </h3>
-                      <div className="mt-2 text-sm text-yellow-700">
-                        <ul className="list-disc pl-5 space-y-1">
-                          <li>
-                            Try signing up again with the same email address
-                          </li>
-                          <li>
-                            Check if you have typed your email correctly during
-                            sign-up
-                          </li>
+                      <div className="mt-2 text-sm text-amber-200/80">
+                        <ul className="list-disc pl-5 space-y-1.5">
+                          <li>Try signing up again with the same email</li>
+                          <li>Check if your email was typed correctly</li>
                           <li>Contact our support team for assistance</li>
                         </ul>
                       </div>
@@ -156,29 +152,31 @@ const VerificationStatus = () => {
                   </div>
                 </div>
 
-                <div className="text-center space-y-4">
-                  <p className="text-sm text-gray-500">
+                <div className="pt-4 border-t border-white/10">
+                  <Button
+                    className="w-full h-12 rounded-xl text-base font-semibold bg-white/10 hover:bg-white/20 text-white border border-white/10 shadow-sm transition-all duration-200"
+                    asChild
+                  >
+                    <Link to="/signup">
+                      <ArrowRight className="h-5 w-5 mr-2" />
+                      Back to Sign Up
+                    </Link>
+                  </Button>
+                </div>
+                
+                <div className="text-center pt-2">
+                  <p className="text-sm text-gray-400">
                     Need help?{" "}
                     <Link
                       to="#"
-                      className="text-blue-500 hover:text-blue-600 font-medium"
+                      className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
                     >
                       Contact support
                     </Link>
                   </p>
                 </div>
-
-                <Button
-                  className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 h-11"
-                  asChild
-                >
-                  <Link to="/signup">
-                    <ArrowRight className="h-5 w-5 mr-2" />
-                    Back to Sign Up
-                  </Link>
-                </Button>
               </div>
-            </>
+            </div>
           )}
         </div>
       </div>
